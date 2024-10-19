@@ -1,0 +1,11 @@
+# Cloud Custodian Policy
+
+policies:
+  - name: destroy-default-s3-bucket
+    resource: aws.s3
+    filters:
+      - type: value
+        key: "Name"
+        value: "default"
+    actions:
+      - type: delete
