@@ -1,0 +1,73 @@
+{
+  "policy": {
+    "name": "test-sqs-teardown",
+    "resource": "awsx.sqs",
+    "actions": [
+      {
+        "type": "delete"
+      }
+    ]
+  },
+  "version": "0.9.41",
+  "execution": {
+    "id": "9b9c1287-6f4a-4f35-8b7d-14b257b88396",
+    "start": 1729366827.0947616,
+    "end_time": 1729366827.1777837,
+    "duration": 0.0830221176147461
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "123456789012",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "out",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "test_sqs_teardown.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": 1,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2024-10-19T15:40:27.102504",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2024-10-19T15:40:27.102504",
+      "Value": 0.0009889602661132812,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2024-10-19T15:40:27.177783",
+      "Value": 0.07527899742126465,
+      "Unit": "Seconds"
+    }
+  ]
+}

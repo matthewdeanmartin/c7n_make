@@ -1,0 +1,68 @@
+{
+  "policy": {
+    "name": "test-sqs-query",
+    "resource": "awsx.sqs"
+  },
+  "version": "0.9.41",
+  "execution": {
+    "id": "7d1f7f4f-5c9f-49f2-ab6b-b8b910c4e49f",
+    "start": 1729366825.0731356,
+    "end_time": 1729366825.293446,
+    "duration": 0.22031044960021973
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "123456789012",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "out",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "test_sqs_query.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": 1,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2024-10-19T15:40:25.293446",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2024-10-19T15:40:25.293446",
+      "Value": 0.21531128883361816,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2024-10-19T15:40:25.293446",
+      "Value": 0.0,
+      "Unit": "Seconds"
+    }
+  ]
+}

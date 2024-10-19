@@ -36,3 +36,9 @@ An opinionated Cloud Custodian build script with examples
 - Code Custodian can't create resources, but it can tear down a lot of resources.
 - Each policy needs at least two tests, a pass and a fail. 
 - Running on real AWS costs money, so tests should be equally happy to run on 
+
+## License
+
+Some code copy-pasted from the Cloud Custodian project, see source file header.
+
+Rest of code is Apache license for compatibility.

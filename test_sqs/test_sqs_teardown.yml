@@ -1,0 +1,7 @@
+---
+policies:
+  - name: test-sqs-teardown
+    resource: awsx.sqs
+    # delete the SQS queues
+    actions:
+        - type: delete
