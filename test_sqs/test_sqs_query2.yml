@@ -1,0 +1,4 @@
+---
+policies:
+  - name: test-sqs-query
+    resource: awsx.sqs

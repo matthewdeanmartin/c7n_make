@@ -10,7 +10,7 @@ from c7n.filters import CrossAccountAccessFilter, MetricsFilter
 from c7n.filters.core import Filter
 from c7n.filters.kms import KmsRelatedFilter
 import c7n.filters.policystatement as polstmt_filter
-from c7n.manager import resources
+
 from c7n.utils import local_session
 from c7n.query import ConfigSource, DescribeSource, QueryResourceManager, TypeInfo
 from c7n.actions import BaseAction
@@ -20,6 +20,8 @@ from c7n.tags import universal_augment
 from c7n.resources.aws import Arn
 from c7n.resources.securityhub import PostFinding
 
+# from c7n.manager import resources # this is AWS provider's resources?
+from aws_extras.provider import resources
 
 class DescribeQueue(DescribeSource):
 

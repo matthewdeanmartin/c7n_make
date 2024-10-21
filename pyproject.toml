@@ -10,7 +10,7 @@ readme = "README.md"
 python = "^3.12"
 c7n = ">=0.9.41"
 #c7n_oci = "*"
-#c7n_azure = '*'
+c7n_azure = '*'
 #c7n_gcp = '*'
 
 [tool.poetry.dev-dependencies]

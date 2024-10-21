@@ -61,10 +61,10 @@ from c7n import credentials, utils
 log = logging.getLogger('custodian.provider')
 
 
-@clouds.register('aws')
+@clouds.register('awsx')
 class Awsx(Provider):
 
-    display_name = 'AWS'
+    display_name = 'AWSX'
     resource_prefix = 'awsx'
 
     resources = PluginRegistry('%s.resources' % resource_prefix)
@@ -72,7 +72,6 @@ class Awsx(Provider):
     # import paths for resources
     resource_map = ResourceMap
 
-    x = print("CALLED")
     def initialize(self, options):
         """
         """
@@ -116,7 +115,7 @@ class Awsx(Provider):
                               'Values': ['opt-in-not-required', 'opted-in']}]
                 ).get('Regions')}
         for p in policy_collection:
-            if 'aws.' in p.resource_type:
+            if 'awsx.' in p.resource_type:
                 _, resource_type = p.resource_type.split('.', 1)
             else:
                 resource_type = p.resource_type

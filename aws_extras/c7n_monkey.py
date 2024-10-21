@@ -5,14 +5,15 @@
 import sys
 import logging
 
-from c7n.cli import main as c7n_main
+import c7n.provider as providers
+import c7n.resources
+from aws_extras.provider import Awsx  # NOQA
 
 from aws_extras.entry import initialize
-from aws_extras.resources.sqs import SQS
+
 
 LOGGER = logging.getLogger(__name__)
 
-import c7n.resources
 
 
 
@@ -21,24 +22,30 @@ def main(args=None) -> None:
     if args is None:
         args = sys.argv[1:]
 
+    from c7n.cli import main as c7n_main
+
+    # Has no effect?
+
+    c7n.resources.PROVIDER_NAMES += ('awsx',)
     # Initialize the awsx, appears to do nothing right now.
     initialize()
-    from aws_extras.provider import Awsx  # NOQA
+
     c7n.resources.LOADED.add('awsx')
-    c7n.resources.PROVIDER_NAMES += ('awsx',)
+
 
     # Do it the hard way because decorators are doing nothing.
-    import c7n.provider as providers
-    providers.clouds.register('awsx', Awsx)
-    providers.clouds['awsx'].resources.register('sqs', SQS)
+
+    # providers.clouds.register('awsx', Awsx)
+    # providers.clouds['awsx'].resources.register('sqs', SQS)
 
     assert "awsx" in providers.clouds,providers.clouds.keys()
 
     LOGGER.info("Delegating arguments: %s", args)
 
-
     # Call c7n's main function with the provided arguments
-    return c7n_main(args=args)
+    result = c7n_main(args=args)
+    logging.shutdown()
+    return result
 
 
 if __name__ == "__main__":

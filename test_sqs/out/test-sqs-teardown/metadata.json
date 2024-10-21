@@ -10,10 +10,10 @@
   },
   "version": "0.9.41",
   "execution": {
-    "id": "9b9c1287-6f4a-4f35-8b7d-14b257b88396",
-    "start": 1729366827.0947616,
-    "end_time": 1729366827.1777837,
-    "duration": 0.0830221176147461
+    "id": "cbaabee8-a7fc-468d-96ed-3dafdddc93a6",
+    "start": 1729540899.7534564,
+    "end_time": 1729540899.9798799,
+    "duration": 0.2264235019683838
   },
   "config": {
     "region": "us-east-1",
@@ -31,7 +31,7 @@
     "metrics_enabled": null,
     "metrics": null,
     "output_dir": "out",
-    "cache_period": 15,
+    "cache_period": 0,
     "dryrun": false,
     "authorization_file": null,
     "subparser": "run",
@@ -53,20 +53,20 @@
   "metrics": [
     {
       "MetricName": "ResourceCount",
-      "Timestamp": "2024-10-19T15:40:27.102504",
+      "Timestamp": "2024-10-21T16:01:39.957730",
       "Value": 1,
       "Unit": "Count"
     },
     {
       "MetricName": "ResourceTime",
-      "Timestamp": "2024-10-19T15:40:27.102504",
-      "Value": 0.0009889602661132812,
+      "Timestamp": "2024-10-21T16:01:39.957730",
+      "Value": 0.19547462463378906,
       "Unit": "Seconds"
     },
     {
       "MetricName": "ActionTime",
-      "Timestamp": "2024-10-19T15:40:27.177783",
-      "Value": 0.07527899742126465,
+      "Timestamp": "2024-10-21T16:01:39.979880",
+      "Value": 0.022149324417114258,
       "Unit": "Seconds"
     }
   ]

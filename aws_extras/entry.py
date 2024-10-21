@@ -6,7 +6,7 @@ from aws_extras.provider import Awsx  # NOQA
 
 
 def initialize():
-    pass
+    """This is for registering all plugins other than resource plugins"""
     # Plugins registered on import
     # import execution modes
     # import aws_extras.policy
