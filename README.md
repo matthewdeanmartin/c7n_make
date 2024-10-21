@@ -1,20 +1,34 @@
 # c7n_make
 An opinionated Cloud Custodian build script with examples
 
-
 ## Goals
 
-- Some guidance for creating a build script for policy files.
-- Folder structure
-- Naming conventions
+- Some guidance for creating policy files.
+  - Folder structure
+  - Naming conventions
+
+Testing
 - Localstack and moto testing
-- End to end testing
+- End-to-end testing
 - Plugin development
+
+Scripts
+- Build scripts (are the artifacts good? Interpolate variables, set defaults, merge)
+- Deployment scripts (Send to a custodian runner)
 
 ## Structure for policy
 
 - The policy file
 - The CC teardown file
+- A pytest unit test and fixture to provision the resources, run the policy, assert, and then teardown.
+
+## Structure for a policy collection
+
+- A folder for each policy
+- Some sort of templating strategy for creating slightly different versions, e.g. development/production
+  - TBD: yq? other?
+- Development here can have two meanings, a place to prove your policies, but also the environment where the
+  enterprise developers other applications, which might have different levels of strictness.
 
 ## Policy Linting
 
