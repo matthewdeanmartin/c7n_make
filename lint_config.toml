@@ -1,0 +1,7 @@
+[rules]
+require_description = true
+allowed_actions = true
+allowed_actions_list = ["tag", "notify"]
+require_document_separator = true
+require_comments = true
+require_version_comment = true
