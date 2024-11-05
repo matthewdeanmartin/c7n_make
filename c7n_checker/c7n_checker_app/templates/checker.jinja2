@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <title>Validate YAML with Cloud Custodian</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin-top: 50px;
+        }
+
+        #sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #f8f9fa;
+            width: 250px;
+            padding-top: 20px;
+        }
+
+        #main-content {
+            margin-left: 260px;
+        }
+
+        .code-box {
+            background-color: #f7f7f9;
+            border: 1px solid #dcdcdc;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<nav class="navbar navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Cloud Custodian YAML Validator</a>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="https://cloudcustodian.io/docs/index.html" target="_blank">Cloud Custodian
+                Docs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+        </li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div id="main-content" class="container">
+    <h1 class="mt-4 mb-4">Validate YAML with Cloud Custodian</h1>
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Validate!</button>
+            </form>
+        </div>
+    </div>
+
+    {% if yaml_validation_output %}
+        <div class="mt-4">
+            <h4>YAML Validation Output</h4>
+            <pre class="code-box">{{ yaml_validation_output }}</pre>
+        </div>
+    {% endif %}
+
+    {% if validation_output %}
+        <div class="mt-4">
+            <h4>Validation Output</h4>
+            <pre class="code-box">{{ validation_output }}</pre>
+        </div>
+    {% endif %}
+
+    {% if dry_run_output %}
+        <div class="mt-4">
+            <h4>Dry Run Output</h4>
+            <pre class="code-box"><code class="yaml">{{ dry_run_output }}</code></pre>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Footer -->
+<footer class="footer mt-5 py-3 bg-light">
+    <div class="container text-center">
+        <span class="text-muted">&copy; 2024 Cloud Custodian YAML Validator</span>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+<script>
+    hljs.highlightAll();
+</script>
+</body>
+</html>

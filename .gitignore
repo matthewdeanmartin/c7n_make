@@ -163,3 +163,5 @@ cython_debug/
 
 .idea/
 /test_sqs/out/
+*.sqlite
+*.sqlite3
