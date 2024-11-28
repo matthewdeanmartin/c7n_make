@@ -1,0 +1,6 @@
+---
+policies:
+  - name: test-teardown
+    resource: aws.graphql-api
+    actions:
+        - type: delete

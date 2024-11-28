@@ -8,7 +8,6 @@ import pytest
 from botocore.config import Config
 
 
-# please write a pytest fixture for this
 
 @pytest.fixture
 def sqs_fixture():

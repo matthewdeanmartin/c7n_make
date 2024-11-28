@@ -1,0 +1,28 @@
+[
+  {
+    "name": "api1",
+    "apiId": "348ec9bf-ecb0-4f9e-898a-0e5d0bb8dd24",
+    "authenticationType": "API_KEY",
+    "arn": "arn:aws:appsync:us-east-1:123456789012:apis/348ec9bf-ecb0-4f9e-898a-0e5d0bb8dd24",
+    "uris": {
+      "GRAPHQL": "http://graphql.uri"
+    },
+    "xrayEnabled": false,
+    "visibility": "GLOBAL",
+    "graphqlApi": {
+      "name": "api1",
+      "apiId": "348ec9bf-ecb0-4f9e-898a-0e5d0bb8dd24",
+      "authenticationType": "API_KEY",
+      "arn": "arn:aws:appsync:us-east-1:123456789012:apis/348ec9bf-ecb0-4f9e-898a-0e5d0bb8dd24",
+      "uris": {
+        "GRAPHQL": "http://graphql.uri"
+      },
+      "tags": {
+        "key": "val",
+        "key2": "val2"
+      },
+      "xrayEnabled": false,
+      "visibility": "GLOBAL"
+    }
+  }
+]

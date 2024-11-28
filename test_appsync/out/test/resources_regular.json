@@ -1,0 +1,13 @@
+[
+  {
+    "name": "api1",
+    "apiId": "87213fb7-a8d2-4ad1-bba1-3785e11747d6",
+    "authenticationType": "API_KEY",
+    "arn": "arn:aws:appsync:us-east-1:123456789012:apis/87213fb7-a8d2-4ad1-bba1-3785e11747d6",
+    "uris": {
+      "GRAPHQL": "http://graphql.uri"
+    },
+    "xrayEnabled": false,
+    "visibility": "GLOBAL"
+  }
+]

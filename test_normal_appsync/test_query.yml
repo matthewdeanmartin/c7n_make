@@ -1,0 +1,4 @@
+---
+policies:
+  - name: test
+    resource: aws.graphql-api

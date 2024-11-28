@@ -1,0 +1,69 @@
+{
+  "policy": {
+    "name": "test-teardown",
+    "resource": "aws.graphql-api",
+    "actions": [
+      {
+        "type": "delete"
+      }
+    ]
+  },
+  "version": "0.9.41",
+  "execution": {
+    "id": "5203f0dc-3bae-4cfa-bb0b-5a58974d64b6",
+    "start": 1732812915.959924,
+    "end_time": 1732812916.106813,
+    "duration": 0.14688897132873535
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "123456789012",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "out",
+    "cache_period": 0,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "test_teardown.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": 1,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {
+    "appsync.ListGraphqlApis": 1
+  },
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2024-11-28T11:55:16.105900",
+      "Value": 0,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2024-11-28T11:55:16.105900",
+      "Value": 0.14001679420471191,
+      "Unit": "Seconds"
+    }
+  ]
+}
