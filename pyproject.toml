@@ -24,9 +24,5 @@ yamldoc = "*"
 pytest = "*"
 
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-custodianx = 'aws_extras.c7n_monkey:main'
+# [tool.poetry.scripts]
+# custodianx = 'aws_extras.c7n_monkey:main'
