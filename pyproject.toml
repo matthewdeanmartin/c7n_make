@@ -1,28 +1,15 @@
-[tool.poetry]
+[project]
 name = "aws-extras"
-include = ["aws_extra"]
 version = "0.1.0"
-description = ""
-authors = ["Matthew Martin <matthewdeanmartin@gmail.com>"]
+authors = [
+    {name = "Matthew Martin", email = "matthewdeanmartin@gmail.com"},
+]
 readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "c7n>=0.9.41",
+    # "c7n_azure",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-c7n = ">=0.9.41"
-#c7n_oci = "*"
-c7n_azure = '*'
-#c7n_gcp = '*'
-
-[tool.poetry.dev-dependencies]
-setuptools = ">=70"
-yamllint = "*"
-pyyaml = "*"
-jsonschema = "*"
-"ruamel.yaml" = "*"
-genson = "*"
-yamldoc = "*"
-pytest = "*"
-
-
-# [tool.poetry.scripts]
-# custodianx = 'aws_extras.c7n_monkey:main'
+[dependency-groups]
+dev = ["yamllint", "pyyaml", "jsonschema", "ruamel.yaml", "genson", "yamldoc", "pytest"]
