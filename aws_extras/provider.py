@@ -55,7 +55,7 @@ from .resource_map import ResourceMap
 # )
 
 from c7n.registry import PluginRegistry
-from c7n import credentials, utils
+from c7n import utils
 
 
 log = logging.getLogger('custodian.provider')

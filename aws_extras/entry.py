@@ -12,4 +12,3 @@ def initialize():
     # import aws_extras.policy
     # import aws_extras.container_host.modes
     # import aws_extras.output # noqa
-    import aws_extras.resources.appsync

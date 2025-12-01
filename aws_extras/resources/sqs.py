@@ -101,7 +101,7 @@ class SQS(QueryResourceManager):
         #
         # boto3 is transitioning to standard urls per https://github.com/boto/botocore/issues/2705
         #
-        endpoint = 'https://sqs.{region}.amazonaws.com'.format(region=self.config.region)
+        endpoint = f'https://sqs.{self.config.region}.amazonaws.com'
         # The above breaks moto & localstack
         endpoint = None
         # these only seem to have the legacy endpoints, so fall through to boto behavior.
@@ -113,7 +113,7 @@ class SQS(QueryResourceManager):
         return local_session(self.session_factory).client('sqs', **params)
 
     def get_permissions(self):
-        perms = super(SQS, self).get_permissions()
+        perms = super().get_permissions()
         perms.append('sqs:GetQueueAttributes')
         return perms
 
@@ -124,7 +124,7 @@ class SQS(QueryResourceManager):
                 ids_normalized.append(i)
                 continue
             ids_normalized.append(i.rsplit('/', 1)[-1])
-        resources = super(SQS, self).get_resources(ids_normalized, cache)
+        resources = super().get_resources(ids_normalized, cache)
         return [r for r in resources if Arn.parse(r['QueueArn']).resource in ids_normalized]
 
 
