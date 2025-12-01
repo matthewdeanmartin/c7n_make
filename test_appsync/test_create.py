@@ -4,10 +4,6 @@ import subprocess
 import boto3
 import pytest
 from botocore.config import Config
-from botocore.exceptions import ClientError
-from typing import Any
-import zipfile
-import io
 
 
 @pytest.fixture

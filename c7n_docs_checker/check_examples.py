@@ -157,7 +157,7 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
                     line = line.split("─▶")[0] + "\n"
                 file.write(line)
 
-    if not "policies:" in full_text:
+    if "policies:" not in full_text:
         return revalidate_with_header(file_path)
 
 
@@ -209,7 +209,7 @@ def revalidate_with_header(file_path: Path) -> tuple[Path, bool, str]:
 
     with file_path.open('r', encoding="utf-8") as file:
         full_text = file.read()
-        if not "policies:" in full_text:
+        if "policies:" not in full_text:
             indented_full_text = "\n".join(["  " + line for line in full_text.split("\n")])
 
             # add the `policies:` header line

@@ -4,17 +4,14 @@ from typing import List
 
 from docutils.core import publish_doctree
 from docutils.nodes import literal_block
-from ruamel import yaml
 from ruamel.yaml import YAML
 
-from check_examples import validate_yaml_files_in_folder
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 import ast
 import textwrap
-from typing import List
 
 
 def extract_docstrings(source_code: str) -> List[str]:
@@ -62,7 +59,7 @@ def fix_policies_file(file_path: Path) -> None:
 
     # Step 2: Check if 'policies:' header exists
     if 'policies' not in data:
-        LOGGER.info(f"'policies:' header missing, adding it.")
+        LOGGER.info("'policies:' header missing, adding it.")
         # If the data is a dictionary, convert it to a list of one dictionary
         if isinstance(data, dict):
             data = {'policies': [data]}
