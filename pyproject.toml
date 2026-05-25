@@ -15,4 +15,6 @@ dependencies = [
 dev = ["yamllint", "pyyaml", "jsonschema", "ruamel.yaml", "genson", "yamldoc", "pytest"]
 
 [tool.uv]
+
+[tool.uv.pip]
 universal = true
