@@ -13,3 +13,6 @@ dependencies = [
 
 [dependency-groups]
 dev = ["yamllint", "pyyaml", "jsonschema", "ruamel.yaml", "genson", "yamldoc", "pytest"]
+
+[tool.uv]
+universal = true
