@@ -6,6 +6,9 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.14"
+classifiers = [
+    "Programming Language :: Python :: 3.15",
+]
 dependencies = [
     "c7n>=0.9.41",
     # "c7n_azure",
@@ -14,7 +17,17 @@ dependencies = [
 [dependency-groups]
 dev = ["yamllint", "pyyaml", "jsonschema", "ruamel.yaml", "genson", "yamldoc", "pytest"]
 
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aws_extras*", "c7n_make*", "c7n_checker*", "c7n_docs_checker*", "c7n_fluent*"]
+exclude = ["policies*", "test_*"]
+
 [tool.uv]
 
 [tool.uv.pip]
 universal = true
+
