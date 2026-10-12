@@ -1,9 +1,8 @@
+import logging
 import multiprocessing
 import os
 import subprocess
-import logging
 from pathlib import Path
-from typing import List
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -12,9 +11,9 @@ from docutils.core import publish_doctree
 from docutils.nodes import literal_block
 
 
-def extract_code_blocks_from_rst(file_path: Path) -> List[str]:
+def extract_code_blocks_from_rst(file_path: Path) -> list[str]:
     # Read the RST file contents
-    with file_path.open('r', encoding='utf-8') as file:
+    with file_path.open("r", encoding="utf-8") as file:
         rst_content = file.read()
 
     # Parse the RST content into a document tree
@@ -25,43 +24,52 @@ def extract_code_blocks_from_rst(file_path: Path) -> List[str]:
     # Traverse the document tree to find YAML code blocks
     for node in doctree.traverse(literal_block):
         # Check if the code block is labeled as YAML
-        if 'yaml' in node.get('classes', []):
+        if "yaml" in node.get("classes", []):
             # Collect the raw text of the code block
             yaml_blocks.append(node.astext())
 
     return yaml_blocks
 
 
-
 def go_extract() -> None:
     examples = {
         # "root": Path(r'C:\github\cloud-custodian\docs\source'), filters.rst is almonst entirely fragments.
-        "kubernetes": Path(r'C:\github\cloud-custodian\docs\source\kubernetes'),
-        "kubernetes_examples": Path(r'C:\github\cloud-custodian\docs\source\kubernetes\examples'),
-        "developer": Path(r'C:\github\cloud-custodian\docs\source\developer'),
-        "aws_examples": Path(r'C:\github\cloud-custodian\docs\source\aws\examples'),
-        "aws_quickstart": Path(r'C:\github\cloud-custodian\docs\source\quickstart'),
-        "aws_topics": Path(r'C:\github\cloud-custodian\docs\source\aws\topics'),
-        "aws": Path(r'C:\github\cloud-custodian\docs\source\aws'),
-        "azure": Path(r'C:\github\cloud-custodian\docs\source\azure'),
-        "azure_advanced": Path(r'C:\github\cloud-custodian\docs\source\azure\advanced'),
-        "azure_configuration": Path(r'C:\github\cloud-custodian\docs\source\azure\configuration'),
-        "azure_configuration_resources": Path(r'C:\github\cloud-custodian\docs\source\azure\configuration\resources'),
-        "azure_examples_lna": Path(r'C:\github\cloud-custodian\docs\source\azure\examples\logicappnotifications'),
+        "kubernetes": Path(r"C:\github\cloud-custodian\docs\source\kubernetes"),
+        "kubernetes_examples": Path(
+            r"C:\github\cloud-custodian\docs\source\kubernetes\examples"
+        ),
+        "developer": Path(r"C:\github\cloud-custodian\docs\source\developer"),
+        "aws_examples": Path(r"C:\github\cloud-custodian\docs\source\aws\examples"),
+        "aws_quickstart": Path(r"C:\github\cloud-custodian\docs\source\quickstart"),
+        "aws_topics": Path(r"C:\github\cloud-custodian\docs\source\aws\topics"),
+        "aws": Path(r"C:\github\cloud-custodian\docs\source\aws"),
+        "azure": Path(r"C:\github\cloud-custodian\docs\source\azure"),
+        "azure_advanced": Path(r"C:\github\cloud-custodian\docs\source\azure\advanced"),
+        "azure_configuration": Path(
+            r"C:\github\cloud-custodian\docs\source\azure\configuration"
+        ),
+        "azure_configuration_resources": Path(
+            r"C:\github\cloud-custodian\docs\source\azure\configuration\resources"
+        ),
+        "azure_examples_lna": Path(
+            r"C:\github\cloud-custodian\docs\source\azure\examples\logicappnotifications"
+        ),
         # "azure_examples_lna_r": Path(r'C:\github\cloud-custodian\docs\source\azure\examples\logicappnotifications\resources'),
-        "azure_examples": Path(r'C:\github\cloud-custodian\docs\source\azure\examples'),
-        "gcp": Path(r'C:\github\cloud-custodian\docs\source\gcp'),
-        "gcp_examples": Path(r'C:\github\cloud-custodian\docs\source\gcp\examples'),
-        "gcp_policy": Path(r'C:\github\cloud-custodian\docs\source\gcp\policy'),
-        "gcp_policy_resources": Path(r'C:\github\cloud-custodian\docs\source\gcp\policy\resources'),
-        "oci": Path(r'C:\github\cloud-custodian\docs\source\oci'),
-        "oci_examples": Path(r'C:\github\cloud-custodian\docs\source\oci\examples'),
-        "oci_advanced": Path(r'C:\github\cloud-custodian\docs\source\oci\advanced'),
+        "azure_examples": Path(r"C:\github\cloud-custodian\docs\source\azure\examples"),
+        "gcp": Path(r"C:\github\cloud-custodian\docs\source\gcp"),
+        "gcp_examples": Path(r"C:\github\cloud-custodian\docs\source\gcp\examples"),
+        "gcp_policy": Path(r"C:\github\cloud-custodian\docs\source\gcp\policy"),
+        "gcp_policy_resources": Path(
+            r"C:\github\cloud-custodian\docs\source\gcp\policy\resources"
+        ),
+        "oci": Path(r"C:\github\cloud-custodian\docs\source\oci"),
+        "oci_examples": Path(r"C:\github\cloud-custodian\docs\source\oci\examples"),
+        "oci_advanced": Path(r"C:\github\cloud-custodian\docs\source\oci\advanced"),
     }
 
     for name, path in examples.items():
         current_folder = path
-        rst_files = current_folder.glob('*.rst')
+        rst_files = current_folder.glob("*.rst")
 
         for rst_file in rst_files:
             # if not "Metadata" in rst_file.stem:
@@ -70,10 +78,13 @@ def go_extract() -> None:
 
             if yaml_blocks:
                 for i, yaml_block in enumerate(yaml_blocks, start=1):
-                    yaml_filename = f"examples/{name}/{rst_file.stem}_{i}.yaml" if len(
-                        yaml_blocks) > 1 else f"examples/{name}/{rst_file.stem}.yaml"
+                    yaml_filename = (
+                        f"examples/{name}/{rst_file.stem}_{i}.yaml"
+                        if len(yaml_blocks) > 1
+                        else f"examples/{name}/{rst_file.stem}.yaml"
+                    )
                     os.makedirs(os.path.dirname(yaml_filename), exist_ok=True)
-                    with open(yaml_filename, 'w', encoding="utf-8") as yaml_file:
+                    with open(yaml_filename, "w", encoding="utf-8") as yaml_file:
                         yaml_file.write(yaml_block)
                         print(f"Extracted YAML block saved to {yaml_filename}")
 
@@ -95,7 +106,6 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
         # Bash, not yaml
         return file_path, True, ""
 
-    #
     if file_path.name in ["deployment_2.yaml"]:
         # This is a github action
         return file_path, True, ""
@@ -149,9 +159,9 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
     if "─▶" in full_text:
         # read file, remove anything after ─▶ in a line by line fashion
         # rewrite to same file
-        with file_path.open('r', encoding="utf-8") as file:
+        with file_path.open("r", encoding="utf-8") as file:
             lines = file.readlines()
-        with file_path.open('w', encoding="utf-8") as file:
+        with file_path.open("w", encoding="utf-8") as file:
             for line in lines:
                 if "─▶" in line:
                     line = line.split("─▶")[0] + "\n"
@@ -160,15 +170,13 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
     if "policies:" not in full_text:
         return revalidate_with_header(file_path)
 
-
-
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["custodian", "validate", str(file_path).replace("\\", "/")],
             check=True,
             capture_output=True,
             text=True,
-            env=os.environ | {'AWS_DEFAULT_REGION': 'us-east-1'}
+            env=os.environ | {"AWS_DEFAULT_REGION": "us-east-1"},
         )
         return file_path, True, ""
     except subprocess.CalledProcessError as e:
@@ -192,7 +200,6 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
             # Intensional fragment
             return file_path, True, ""
 
-
         # Capture and return the error message
 
         # if ("Policy files top level keys" in e.stderr and
@@ -202,43 +209,48 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
 
         return file_path, False, e.stderr
 
+
 def revalidate_with_header(file_path: Path) -> tuple[Path, bool, str]:
     # write a copy of the file in same place with name %_with_header.yaml
     # add a header to the file
     # Validate it.
 
-    with file_path.open('r', encoding="utf-8") as file:
+    with file_path.open("r", encoding="utf-8") as file:
         full_text = file.read()
         if "policies:" not in full_text:
-            indented_full_text = "\n".join(["  " + line for line in full_text.split("\n")])
+            indented_full_text = "\n".join(
+                ["  " + line for line in full_text.split("\n")]
+            )
 
             # add the `policies:` header line
             full_text = "policies:\n" + indented_full_text
 
             new_file_path = file_path.with_name(file_path.stem + "_with_header.yaml")
-            with new_file_path.open('w', encoding="utf-8") as new_file:
+            with new_file_path.open("w", encoding="utf-8") as new_file:
                 new_file.write(full_text)
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["custodian", "validate", str(new_file_path).replace("\\", "/")],
             check=True,
             capture_output=True,
             text=True,
-            env=os.environ | {'AWS_DEFAULT_REGION': 'us-east-1'}
+            env=os.environ | {"AWS_DEFAULT_REGION": "us-east-1"},
         )
         return file_path, True, ""
     except subprocess.CalledProcessError as e:
         # Capture and return the error message
 
-        if ("Policy files top level keys" in e.stderr and
-                ("lambda_2" in str(file_path) or "lambda_8" in str(file_path))):
+        if "Policy files top level keys" in e.stderr and (
+            "lambda_2" in str(file_path) or "lambda_8" in str(file_path)
+        ):
             # Yaml fragment.
             return file_path, True, ""
 
         return file_path, False, e.stderr
 
-def collect_yaml_files(folder: Path) -> List[Path]:
+
+def collect_yaml_files(folder: Path) -> list[Path]:
     """Collects all .yml and .yaml files from the specified folder and its subdirectories.
 
     Args:
@@ -251,7 +263,7 @@ def collect_yaml_files(folder: Path) -> List[Path]:
     return yaml_files
 
 
-def validate_files_in_parallel(files: List[Path]) -> List[tuple[Path, bool, str]]:
+def validate_files_in_parallel(files: list[Path]) -> list[tuple[Path, bool, str]]:
     """Validates YAML files in parallel using available CPU cores.
 
     Args:
@@ -269,7 +281,7 @@ def validate_files_in_parallel(files: List[Path]) -> List[tuple[Path, bool, str]
     return results
 
 
-def print_failures(failures: List[tuple[Path, bool, str]]) -> None:
+def print_failures(failures: list[tuple[Path, bool, str]]) -> None:
     """Prints out failed validations in a readable format.
 
     Args:

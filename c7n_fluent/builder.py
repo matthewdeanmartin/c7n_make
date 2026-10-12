@@ -56,7 +56,9 @@ class PolicyBuilder:
     def __init__(self, name):
         self.name = name
         self.resource_type = None
-        self.execution_mode = None  # Renamed from `mode` to `execution_mode` to avoid conflict
+        self.execution_mode = (
+            None  # Renamed from `mode` to `execution_mode` to avoid conflict
+        )
         self.filters = []
         self.actions = []
 
@@ -99,7 +101,9 @@ class PolicyBuilder:
         """Exports the policy to a YAML format string."""
         return yaml.dump({"policies": [self.build()]}, default_flow_style=False)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+
     def run():
         # Example usage
         policy = (
@@ -114,4 +118,5 @@ if __name__ == '__main__':
         # Export policy to YAML
         yaml_output = policy.export_to_yaml()
         print(yaml_output)
+
     run()

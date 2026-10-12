@@ -14,11 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.urls import path
 
 from c7n_checker.c7n_checker_app.views import ValidateYamlView
 
 urlpatterns = [
-    path('', ValidateYamlView.as_view(), name='validate_yaml'),
-    path('validate/', ValidateYamlView.as_view(), name='validate_yaml'),
+    path("", ValidateYamlView.as_view(), name="validate_yaml"),
+    path("validate/", ValidateYamlView.as_view(), name="validate_yaml"),
 ]

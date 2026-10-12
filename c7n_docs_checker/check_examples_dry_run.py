@@ -1,8 +1,7 @@
+import logging
 import multiprocessing
 import subprocess
-import logging
 from pathlib import Path
-from typing import List
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -20,11 +19,18 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
     """
     LOGGER.info(f"Validating {file_path}...")
     try:
-        result = subprocess.run(
-            ["custodian", "run", str(file_path), "--output-dir=state", "--dry-run", "--verbose"],
+        subprocess.run(
+            [
+                "custodian",
+                "run",
+                str(file_path),
+                "--output-dir=state",
+                "--dry-run",
+                "--verbose",
+            ],
             check=True,
             capture_output=True,
-            text=True
+            text=True,
         )
         return file_path, True, ""
     except subprocess.CalledProcessError as e:
@@ -32,7 +38,7 @@ def validate_file(file_path: Path) -> tuple[Path, bool, str]:
         return file_path, False, e.stderr
 
 
-def validate_files_in_parallel(folder: Path) -> List[tuple[Path, bool, str]]:
+def validate_files_in_parallel(folder: Path) -> list[tuple[Path, bool, str]]:
     """Validates all YAML files in the specified folder in parallel using available CPU cores.
 
     Args:
@@ -48,7 +54,7 @@ def validate_files_in_parallel(folder: Path) -> List[tuple[Path, bool, str]]:
     return results
 
 
-def print_failures(failures: List[tuple[Path, bool, str]]) -> None:
+def print_failures(failures: list[tuple[Path, bool, str]]) -> None:
     """Prints out failed validations in a readable format.
 
     Args:

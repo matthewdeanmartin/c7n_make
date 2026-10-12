@@ -1,5 +1,5 @@
-import sys
 import logging
+import sys
 
 from c7n.cli import main as c7n_main
 

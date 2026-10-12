@@ -11,4 +11,4 @@ def initialize():
     # import execution modes
     # import aws_extras.policy
     # import aws_extras.container_host.modes
-    # import aws_extras.output # noqa
+    # import aws_extras.output

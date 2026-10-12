@@ -12,19 +12,21 @@ def fixture():
     yield
     teardown()
 
+
 def setup():
     # Configuration for localstack profile and endpoints
-    boto3.setup_default_session(profile_name='moto')
-    config = Config(region_name='us-east-1')
+    boto3.setup_default_session(profile_name="moto")
+    Config(region_name="us-east-1")
 
     client = boto3.client("appsync", region_name="us-east-1")
-    api = client.create_graphql_api(
+    client.create_graphql_api(
         name="api1", authenticationType="API_KEY", tags={"key": "val", "key2": "val2"}
     )["graphqlApi"]
 
-    api2 = client.create_graphql_api(
+    client.create_graphql_api(
         name="api2", authenticationType="API_KEY", tags={"key": "val", "key2": "val2"}
     )
+
 
 def teardown():
     pass
@@ -44,6 +46,7 @@ def teardown():
     # else:
     #     print(api)
 
+
 def test_setup(fixture):
     # run custodian for `test_query` and `test_teardown`
     # use subprocess.run
@@ -51,13 +54,24 @@ def test_setup(fixture):
     venv = ["poetry", "run"]
     # Expect 1.
     try:
-        command = venv + ['custodian', 'run', '-s', 'out', '--verbose',
-                          '--cache-period', '0', 'test_query.yml']
+        command = [
+            *venv,
+            "custodian",
+            "run",
+            "-s",
+            "out",
+            "--verbose",
+            "--cache-period",
+            "0",
+            "test_query.yml",
+        ]
         print(command)
-        output = subprocess.run(command,
-                                capture_output=True,
-                                check=True,
-                                env=dict(os.environ) | {"AWS_PROFILE": "moto"})
+        output = subprocess.run(
+            command,
+            capture_output=True,
+            check=True,
+            env=dict(os.environ) | {"AWS_PROFILE": "moto"},
+        )
         print("Finished initial query.")
         if output.stdout:
             print(output.stdout.decode())
@@ -72,12 +86,21 @@ def test_setup(fixture):
 
     # Tear down.
     try:
-        command = venv + ['custodian', 'run', '-s', 'out', '--verbose', '--cache-period', '0',
-                          'test_teardown.yml']
+        command = [
+            *venv,
+            "custodian",
+            "run",
+            "-s",
+            "out",
+            "--verbose",
+            "--cache-period",
+            "0",
+            "test_teardown.yml",
+        ]
         print(command)
-        output = subprocess.run( command,
-                                check=True,
-                                env=dict(os.environ) | {"AWS_PROFILE": "moto"})
+        output = subprocess.run(
+            command, check=True, env=dict(os.environ) | {"AWS_PROFILE": "moto"}
+        )
         print(output)
         print("Finished teardown.")
         if output.stdout:
@@ -93,17 +116,29 @@ def test_setup(fixture):
 
     # sleep for 1 second
     import time
+
     time.sleep(1)
 
     # Expect 0.
     try:
-        command = venv + ['custodian', 'run', '-s', 'out', '--verbose',
-                          '--cache-period', '0', 'test_teardown.yml']
+        command = [
+            *venv,
+            "custodian",
+            "run",
+            "-s",
+            "out",
+            "--verbose",
+            "--cache-period",
+            "0",
+            "test_teardown.yml",
+        ]
         print(command)
-        output = subprocess.run(command,
-                                capture_output=True,
-                                check=True,
-                                env=dict(os.environ) | {"AWS_PROFILE": "moto"})
+        output = subprocess.run(
+            command,
+            capture_output=True,
+            check=True,
+            env=dict(os.environ) | {"AWS_PROFILE": "moto"},
+        )
         print(f"Final output {output}")
         print("Finished querying after teardown.")
         if output.stdout:
@@ -116,4 +151,3 @@ def test_setup(fixture):
             print(e.stdout.decode())
         if e.stderr:
             print(e.stderr.decode())
-

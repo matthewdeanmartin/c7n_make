@@ -1,15 +1,16 @@
-import sys
-import yaml
 import logging
+import sys
 from pathlib import Path
-from typing import Any, Union, Optional
+from typing import Any
+
 import tomlkit
+import yaml
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Define types for clarity
-YamlContent = Union[dict[str, Any], list[Any]]
+YamlContent = dict[str, Any] | list[Any]
 
 
 def load_yaml_content(input_data: str) -> list[YamlContent]:
@@ -54,7 +55,9 @@ def lint_allowed_actions(content: YamlContent, allowed_actions: list[str]) -> bo
     for policy in content.get("policies", []):
         for action in policy.get("actions", []):
             if action not in allowed_actions:
-                LOGGER.warning("Policy %s uses forbidden action: %s", policy.get("name"), action)
+                LOGGER.warning(
+                    "Policy %s uses forbidden action: %s", policy.get("name"), action
+                )
                 valid = False
     return valid
 
@@ -83,7 +86,7 @@ def lint_require_version_comment(input_data: str) -> bool:
     return True
 
 
-def lint_cloud_custodian_file(input_data: str, config_path: Optional[Path] = None) -> None:
+def lint_cloud_custodian_file(input_data: str, config_path: Path | None = None) -> None:
     """Lint a Cloud Custodian YAML configuration file.
 
     Args:
@@ -114,7 +117,7 @@ def lint_cloud_custodian_file(input_data: str, config_path: Optional[Path] = Non
             lint_require_version_comment(input_data)
 
 
-def read_input(source: Union[str, Path]) -> str:
+def read_input(source: str | Path) -> str:
     """Reads YAML input from a file or stdin.
 
     Args:
@@ -136,13 +139,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Lint a Cloud Custodian YAML file.")
     parser.add_argument(
         "source",
-        help="File name or YAML content. If content is piped, it will be treated as YAML directly."
+        help="File name or YAML content. If content is piped, it will be treated as YAML directly.",
     )
     parser.add_argument(
         "--config",
         type=str,
         default="custodian_linter_config.toml",
-        help="Path to the configuration file (default: custodian_linter_config.toml)"
+        help="Path to the configuration file (default: custodian_linter_config.toml)",
     )
 
     args = parser.parse_args()

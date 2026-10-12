@@ -1,7 +1,6 @@
 import os
 import subprocess
 import tempfile
-from typing import Optional
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -20,10 +19,9 @@ class ValidateYamlView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         form = YamlForm(request.POST)
 
-        yaml_validation: Optional[str] = None
-        validation_output: Optional[str] = None
-        dry_run_output: Optional[str] = None
-
+        yaml_validation: str | None = None
+        validation_output: str | None = None
+        dry_run_output: str | None = None
 
         if form.is_valid():
             yaml_content = form.cleaned_data["yaml_content"]
@@ -47,6 +45,7 @@ class ValidateYamlView(View):
         Validate yaml as yaml. Don't check schema
         """
         import yaml
+
         try:
             yaml.load(yaml_content, Loader=yaml.FullLoader)
         except yaml.YAMLError as exc:
@@ -57,7 +56,9 @@ class ValidateYamlView(View):
 
     def run_custodian_command(self, yaml_content: str, validate: bool) -> str:
         # Create a temporary file to store the YAML content
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yaml') as temp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yaml"
+        ) as temp_file:
             temp_file.write(yaml_content)
             temp_file_path = temp_file.name
 
@@ -73,7 +74,7 @@ class ValidateYamlView(View):
                 text=True,
                 capture_output=True,
                 check=True,
-                env=dict(os.environ) | {"AWS_PROFILE": "moto"}
+                env=dict(os.environ) | {"AWS_PROFILE": "moto"},
             )
             return process.stdout + process.stderr
         except subprocess.CalledProcessError as e:

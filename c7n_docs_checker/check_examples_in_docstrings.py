@@ -1,11 +1,9 @@
 import logging
 from pathlib import Path
-from typing import List
 
 from docutils.core import publish_doctree
 from docutils.nodes import literal_block
 from ruamel.yaml import YAML
-
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +12,7 @@ import ast
 import textwrap
 
 
-def extract_docstrings(source_code: str) -> List[str]:
+def extract_docstrings(source_code: str) -> list[str]:
     """Extracts all docstrings from the given Python source code.
 
     Args:
@@ -27,7 +25,9 @@ def extract_docstrings(source_code: str) -> List[str]:
     parsed_ast = ast.parse(source_code)
 
     for node in ast.walk(parsed_ast):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Module)):
+        if isinstance(
+            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Module)
+        ):
             docstring = ast.get_docstring(node)
             if docstring:
                 # Clean up indentation for the docstring
@@ -48,7 +48,7 @@ def fix_policies_file(file_path: Path) -> None:
     # Step 1: Read the file
     try:
         with file_path.open("r", encoding="utf-8") as file:
-            yaml = YAML(typ='rt')
+            yaml = YAML(typ="rt")
             data = yaml.load(file)
     except FileNotFoundError:
         LOGGER.error(f"File not found: {file_path}")
@@ -58,15 +58,15 @@ def fix_policies_file(file_path: Path) -> None:
         return
 
     # Step 2: Check if 'policies:' header exists
-    if 'policies' not in data:
+    if "policies" not in data:
         LOGGER.info("'policies:' header missing, adding it.")
         # If the data is a dictionary, convert it to a list of one dictionary
         if isinstance(data, dict):
-            data = {'policies': [data]}
+            data = {"policies": [data]}
             LOGGER.info("Converted dictionary to a list under 'policies:'")
         # If the data is a list, nest it under 'policies'
         elif isinstance(data, list):
-            data = {'policies': data}
+            data = {"policies": data}
             LOGGER.info("Wrapped list under 'policies:'")
         else:
             LOGGER.error("Unexpected YAML structure. Expected a list or dict.")
@@ -129,7 +129,8 @@ def fix_policies_file(file_path: Path) -> None:
 #
 #     LOGGER.info(f"File corrected and saved: {file_path}")
 
-def yaml_blocks_in_rst_string(rst_content: str) -> List[str]:
+
+def yaml_blocks_in_rst_string(rst_content: str) -> list[str]:
     # Parse the RST content into a document tree
     doctree = publish_doctree(rst_content)
 
@@ -138,7 +139,7 @@ def yaml_blocks_in_rst_string(rst_content: str) -> List[str]:
     # Traverse the document tree to find YAML code blocks
     for node in doctree.traverse(literal_block):
         # Check if the code block is labeled as YAML
-        if 'yaml' in node.get('classes', []):
+        if "yaml" in node.get("classes", []):
             # Collect the raw text of the code block
             print(node)
             yaml_blocks.append(node.astext())
@@ -146,7 +147,7 @@ def yaml_blocks_in_rst_string(rst_content: str) -> List[str]:
     return yaml_blocks
 
 
-def extract_code_blocks_from_rst(file_path: Path) -> List[str]:
+def extract_code_blocks_from_rst(file_path: Path) -> list[str]:
     """
     Extract YAML code blocks from reStructuredText (reST) docstrings in the given file.
     Start a new block if 'policies:' is found and terminate if a line with '\"\"\"' is encountered.
@@ -160,7 +161,7 @@ def extract_code_blocks_from_rst(file_path: Path) -> List[str]:
 
     all_yaml_blocks = []
 
-    with file_path.open('r', encoding="utf-8") as file:
+    with file_path.open("r", encoding="utf-8") as file:
         lines_text = file.read()
         if "─▶" in lines_text:
             fixed_lines = []
@@ -178,8 +179,12 @@ def extract_code_blocks_from_rst(file_path: Path) -> List[str]:
     return all_yaml_blocks
 
 
-def save_yaml_snippets(source_directory: Path, destination_dir: Path, source_file: Path,
-                       yaml_blocks: List[str]) -> None:
+def save_yaml_snippets(
+    source_directory: Path,
+    destination_dir: Path,
+    source_file: Path,
+    yaml_blocks: list[str],
+) -> None:
     """
     Save extracted YAML blocks into separate .yml files in the destination directory,
     while preserving the source file's directory structure.
@@ -246,7 +251,9 @@ if __name__ == "__main__":
     # # Start the validation process
     # validate_yaml_files_in_folder(destination_directory)
 
-    print(yaml_blocks_in_rst_string("""Filter an EC2 instance that has an IAM instance profile that contains an IAM role that has
+    print(
+        yaml_blocks_in_rst_string(
+            """Filter an EC2 instance that has an IAM instance profile that contains an IAM role that has
        a specific managed IAM policy. If an EC2 instance does not have a profile or the profile
        does not contain an IAM role, then it will be treated as not having the policy.
 
@@ -306,4 +313,6 @@ attached policy ARNs matching a pattern:
             key: PolicyArn
             op: regex
             value: "arn:aws:iam::aws:policy/.*FullAccess"
-    """))
+    """
+        )
+    )

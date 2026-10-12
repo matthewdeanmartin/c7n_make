@@ -67,7 +67,7 @@
 #     if should_load_provider('aws', provider_types):
 #         import c7n.resources.securityhub
 #         import c7n.resources.sfn
-#         import c7n.resources.ssm # NOQA
+#         import c7n.resources.ssm
 #
 #     if should_load_provider('awscc', provider_types):
 #         from c7n_awscc.entry import initialize_awscc
@@ -102,6 +102,6 @@
 #         initialize_oci()
 #
 #     if should_load_provider('c7n', provider_types):
-#         from c7n import data  # noqa
+#         from c7n import data
 #
 #     LOADED.update(provider_types)

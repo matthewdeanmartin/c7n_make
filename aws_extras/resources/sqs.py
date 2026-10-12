@@ -1,91 +1,85 @@
 # Copyright The Cloud Custodian Authors.
 # SPDX-License-Identifier: Apache-2.0
-from botocore.exceptions import ClientError
-
+import contextlib
 import json
 import re
 
-from c7n.actions import RemovePolicyBase, ModifyPolicyBase
+import c7n.filters.policystatement as polstmt_filter
+from botocore.exceptions import ClientError
+from c7n.actions import BaseAction, ModifyPolicyBase, RemovePolicyBase
 from c7n.filters import CrossAccountAccessFilter, MetricsFilter
 from c7n.filters.core import Filter
 from c7n.filters.kms import KmsRelatedFilter
-import c7n.filters.policystatement as polstmt_filter
-
-from c7n.utils import local_session
 from c7n.query import ConfigSource, DescribeSource, QueryResourceManager, TypeInfo
-from c7n.actions import BaseAction
-from c7n.utils import type_schema
-from c7n.tags import universal_augment
-
 from c7n.resources.aws import Arn
 from c7n.resources.securityhub import PostFinding
+from c7n.tags import universal_augment
+from c7n.utils import local_session, type_schema
 
 # from c7n.manager import resources # this is AWS provider's resources?
 from aws_extras.provider import resources
 
-class DescribeQueue(DescribeSource):
 
+class DescribeQueue(DescribeSource):
     def augment(self, resources):
         client = self.manager.get_client()
 
         def _augment(r):
             try:
                 queue = self.manager.retry(
-                    client.get_queue_attributes,
-                    QueueUrl=r,
-                    AttributeNames=['All'])['Attributes']
-                queue['QueueUrl'] = r
-                queue['QueueName'] = queue['QueueArn'].rsplit(':', 1)[-1]
+                    client.get_queue_attributes, QueueUrl=r, AttributeNames=["All"]
+                )["Attributes"]
+                queue["QueueUrl"] = r
+                queue["QueueName"] = queue["QueueArn"].rsplit(":", 1)[-1]
             except ClientError as e:
-                if e.response['Error']['Code'] == 'AWS.SimpleQueueService.NonExistentQueue':
+                if (
+                    e.response["Error"]["Code"]
+                    == "AWS.SimpleQueueService.NonExistentQueue"
+                ):
                     return
-                if e.response['Error']['Code'] == 'AccessDenied':
-                    self.manager.log.warning("Denied access to sqs %s" % r)
+                if e.response["Error"]["Code"] == "AccessDenied":
+                    self.manager.log.warning(f"Denied access to sqs {r}")
                     return
                 raise
             return queue
 
         with self.manager.executor_factory(max_workers=2) as w:
             return universal_augment(
-                self.manager, list(filter(None, w.map(_augment, resources))))
+                self.manager, list(filter(None, w.map(_augment, resources)))
+            )
 
 
 class QueueConfigSource(ConfigSource):
-
     def load_resource(self, item):
         resource = super().load_resource(item)
-        resource['QueueUrl'] = item['resourceId']
+        resource["QueueUrl"] = item["resourceId"]
         return resource
 
 
-@resources.register('sqs')
+@resources.register("sqs")
 class SQS(QueryResourceManager):
-
     class resource_type(TypeInfo):
-        service = 'awsx.sqs'
+        service = "awsx.sqs"
         arn_type = ""
-        enum_spec = ('list_queues', 'QueueUrls', {'MaxResults': 1000})
+        enum_spec = ("list_queues", "QueueUrls", {"MaxResults": 1000})
         detail_spec = ("get_queue_attributes", "QueueUrl", None, "Attributes")
-        cfn_type = config_type = 'AWS::SQS::Queue'
-        id = 'QueueUrl'
+        cfn_type = config_type = "AWS::SQS::Queue"
+        id = "QueueUrl"
         arn = "QueueArn"
-        filter_name = 'QueueNamePrefix'
-        filter_type = 'scalar'
-        name = 'QueueUrl'
-        date = 'CreatedTimestamp'
-        dimension = 'QueueName'
+        filter_name = "QueueNamePrefix"
+        filter_type = "scalar"
+        name = "QueueUrl"
+        date = "CreatedTimestamp"
+        dimension = "QueueName"
         universal_taggable = object()
         permissions_augment = ("sqs:ListQueueTags",)
         default_report_fields = (
-            'QueueArn',
-            'CreatedTimestamp',
-            'ApproximateNumberOfMessages',
+            "QueueArn",
+            "CreatedTimestamp",
+            "ApproximateNumberOfMessages",
         )
 
-    source_mapping = {
-        'describe': DescribeQueue,
-        'config': QueueConfigSource
-    }
+    source_mapping = {"describe": DescribeQueue, "config": QueueConfigSource}
 
     def get_client(self):
         # Work around the fact that boto picks a legacy endpoint by default
@@ -101,43 +95,42 @@ class SQS(QueryResourceManager):
         #
         # boto3 is transitioning to standard urls per https://github.com/boto/botocore/issues/2705
         #
-        endpoint = f'https://sqs.{self.config.region}.amazonaws.com'
+        endpoint = f"https://sqs.{self.config.region}.amazonaws.com"
         # The above breaks moto & localstack
         endpoint = None
         # these only seem to have the legacy endpoints, so fall through to boto behavior.
-        if self.config.region in ('cn-north-1', 'cn-northwest-1'):
+        if self.config.region in ("cn-north-1", "cn-northwest-1"):
             endpoint = None
         params = {}
         if endpoint:
-            params['endpoint_url'] = endpoint
-        return local_session(self.session_factory).client('sqs', **params)
+            params["endpoint_url"] = endpoint
+        return local_session(self.session_factory).client("sqs", **params)
 
     def get_permissions(self):
         perms = super().get_permissions()
-        perms.append('sqs:GetQueueAttributes')
+        perms.append("sqs:GetQueueAttributes")
         return perms
 
     def get_resources(self, ids, cache=True):
         ids_normalized = []
         for i in ids:
-            if not i.startswith('https://'):
+            if not i.startswith("https://"):
                 ids_normalized.append(i)
                 continue
-            ids_normalized.append(i.rsplit('/', 1)[-1])
+            ids_normalized.append(i.rsplit("/", 1)[-1])
         resources = super().get_resources(ids_normalized, cache)
-        return [r for r in resources if Arn.parse(r['QueueArn']).resource in ids_normalized]
-
-
-@SQS.filter_registry.register('metrics')
-class MetricsFilter(MetricsFilter):
-
-    def get_dimensions(self, resource):
         return [
-            {'Name': 'QueueName',
-             'Value': resource['QueueUrl'].rsplit('/', 1)[-1]}]
+            r for r in resources if Arn.parse(r["QueueArn"]).resource in ids_normalized
+        ]
 
 
-@SQS.filter_registry.register('cross-account')
+@SQS.filter_registry.register("metrics")
+class MetricsFilter(MetricsFilter):
+    def get_dimensions(self, resource):
+        return [{"Name": "QueueName", "Value": resource["QueueUrl"].rsplit("/", 1)[-1]}]
+
+
+@SQS.filter_registry.register("cross-account")
 class SQSCrossAccount(CrossAccountAccessFilter):
     """Filter SQS queues which have cross account permissions
 
@@ -151,45 +144,51 @@ class SQSCrossAccount(CrossAccountAccessFilter):
                 filters:
                   - type: cross-account
     """
-    permissions = ('sqs:GetQueueAttributes',)
+
+    permissions = ("sqs:GetQueueAttributes",)
 
 
-@SQS.filter_registry.register('kms-key')
+@SQS.filter_registry.register("kms-key")
 class KmsFilter(KmsRelatedFilter):
+    RelatedIdsExpression = "KmsMasterKeyId"
 
-    RelatedIdsExpression = 'KmsMasterKeyId'
 
-
-@SQS.action_registry.register('post-finding')
+@SQS.action_registry.register("post-finding")
 class SQSPostFinding(PostFinding):
-
-    resource_type = 'AwsSqsQueue'
+    resource_type = "AwsSqsQueue"
 
     def format_resource(self, r):
         envelope, payload = self.format_envelope(r)
-        payload.update(self.filter_empty({
-            'KmsDataKeyReusePeriodSeconds': r.get('KmsDataKeyReusePeriodSeconds'),
-            'KmsMasterKeyId': r.get('KmsMasterKeyId'),
-            'QueueName': r['QueueArn'].split(':')[-1],
-            'DeadLetterTargetArn': r.get('DeadLetterTargetArn')
-        }))
-        if 'KmsDataKeyReusePeriodSeconds' in payload:
-            payload['KmsDataKeyReusePeriodSeconds'] = int(
-                payload['KmsDataKeyReusePeriodSeconds'])
+        payload.update(
+            self.filter_empty(
+                {
+                    "KmsDataKeyReusePeriodSeconds": r.get(
+                        "KmsDataKeyReusePeriodSeconds"
+                    ),
+                    "KmsMasterKeyId": r.get("KmsMasterKeyId"),
+                    "QueueName": r["QueueArn"].split(":")[-1],
+                    "DeadLetterTargetArn": r.get("DeadLetterTargetArn"),
+                }
+            )
+        )
+        if "KmsDataKeyReusePeriodSeconds" in payload:
+            payload["KmsDataKeyReusePeriodSeconds"] = int(
+                payload["KmsDataKeyReusePeriodSeconds"]
+            )
         return envelope
 
 
-@SQS.filter_registry.register('has-statement')
+@SQS.filter_registry.register("has-statement")
 class HasStatementFilter(polstmt_filter.HasStatementFilter):
     def get_std_format_args(self, queue):
         return {
-            'queue_arn': queue['QueueArn'],
-            'account_id': self.manager.config.account_id,
-            'region': self.manager.config.region
+            "queue_arn": queue["QueueArn"],
+            "account_id": self.manager.config.account_id,
+            "region": self.manager.config.region,
         }
 
 
-@SQS.action_registry.register('remove-statements')
+@SQS.action_registry.register("remove-statements")
 class RemovePolicyStatement(RemovePolicyBase):
     """Action to remove policy statements from SQS
 
@@ -207,7 +206,7 @@ class RemovePolicyStatement(RemovePolicyBase):
                     statement_ids: matched
     """
 
-    permissions = ('sqs:GetQueueAttributes', 'sqs:RemovePermission')
+    permissions = ("sqs:GetQueueAttributes", "sqs:RemovePermission")
 
     def process(self, resources):
         results = []
@@ -216,33 +215,33 @@ class RemovePolicyStatement(RemovePolicyBase):
             try:
                 results += filter(None, [self.process_resource(client, r)])
             except Exception:
-                self.log.exception(
-                    "Error processing sqs:%s", r['QueueUrl'])
+                self.log.exception("Error processing sqs:%s", r["QueueUrl"])
         return results
 
     def process_resource(self, client, resource):
-        p = resource.get('Policy')
+        p = resource.get("Policy")
         if p is None:
             return
 
-        p = json.loads(resource['Policy'])
+        p = json.loads(resource["Policy"])
         _, found = self.process_policy(
-            p, resource, CrossAccountAccessFilter.annotation_key)
+            p, resource, CrossAccountAccessFilter.annotation_key
+        )
 
         if not found:
             return
 
         for f in found:
-            client.remove_permission(
-                QueueUrl=resource['QueueUrl'],
-                Label=f['Sid'])
+            client.remove_permission(QueueUrl=resource["QueueUrl"], Label=f["Sid"])
 
-        return {'Name': resource['QueueUrl'],
-                'State': 'PolicyRemoved',
-                'Statements': found}
+        return {
+            "Name": resource["QueueUrl"],
+            "State": "PolicyRemoved",
+            "Statements": found,
+        }
 
 
-@SQS.action_registry.register('modify-policy')
+@SQS.action_registry.register("modify-policy")
 class ModifyPolicyStatement(ModifyPolicyBase):
     """Action to modify SQS Queue IAM policy statements.
 
@@ -266,17 +265,19 @@ class ModifyPolicyStatement(ModifyPolicyBase):
                             }]
                     remove-statements: '*'
     """
-    permissions = ('sqs:SetQueueAttributes', 'sqs:GetQueueAttributes')
+
+    permissions = ("sqs:SetQueueAttributes", "sqs:GetQueueAttributes")
 
     def process(self, resources):
         results = []
         client = self.manager.get_client()
         for r in resources:
-            policy = json.loads(r.get('Policy') or '{}')
-            policy_statements = policy.setdefault('Statement', [])
+            policy = json.loads(r.get("Policy") or "{}")
+            policy_statements = policy.setdefault("Statement", [])
 
             new_policy, removed = self.remove_statements(
-                policy_statements, r, CrossAccountAccessFilter.annotation_key)
+                policy_statements, r, CrossAccountAccessFilter.annotation_key
+            )
             if new_policy is None:
                 new_policy = policy_statements
             new_policy, added = self.add_statements(new_policy)
@@ -285,20 +286,19 @@ class ModifyPolicyStatement(ModifyPolicyBase):
                 continue
 
             results += {
-                'Name': r['QueueUrl'],
-                'State': 'PolicyModified',
-                'Statements': new_policy
+                "Name": r["QueueUrl"],
+                "State": "PolicyModified",
+                "Statements": new_policy,
             }
 
-            policy['Statement'] = new_policy
+            policy["Statement"] = new_policy
             client.set_queue_attributes(
-                QueueUrl=r['QueueUrl'],
-                Attributes={'Policy': json.dumps(policy)}
+                QueueUrl=r["QueueUrl"], Attributes={"Policy": json.dumps(policy)}
             )
         return results
 
 
-@SQS.action_registry.register('delete')
+@SQS.action_registry.register("delete")
 class DeleteSqsQueue(BaseAction):
     """Action to delete a SQS queue
 
@@ -318,8 +318,8 @@ class DeleteSqsQueue(BaseAction):
                   - type: delete
     """
 
-    schema = type_schema('delete')
-    permissions = ('sqs:DeleteQueue',)
+    schema = type_schema("delete")
+    permissions = ("sqs:DeleteQueue",)
 
     def process(self, queues):
         client = self.manager.get_client()
@@ -327,14 +327,13 @@ class DeleteSqsQueue(BaseAction):
             self.process_queue(client, q)
 
     def process_queue(self, client, queue):
-        try:
-            client.delete_queue(QueueUrl=queue['QueueUrl'])
-        except (client.exceptions.QueueDoesNotExist,
-                client.exceptions.QueueDeletedRecently):
-            pass
+        with contextlib.suppress(
+            client.exceptions.QueueDoesNotExist, client.exceptions.QueueDeletedRecently
+        ):
+            client.delete_queue(QueueUrl=queue["QueueUrl"])
 
 
-@SQS.action_registry.register('set-encryption')
+@SQS.action_registry.register("set-encryption")
 class SetEncryption(BaseAction):
     """Action to set encryption key on SQS queue
 
@@ -354,57 +353,59 @@ class SetEncryption(BaseAction):
                   - type: set-encryption
                     key: "<alias of kms key>"
     """
+
     schema = type_schema(
-        'set-encryption',
+        "set-encryption",
         **{
-            "enabled": {'type': 'boolean'},
-            "reuse-period": {'type': 'integer', 'minimum': 60, 'maximum': 86400},
-            "key": {'type': 'string'}}
+            "enabled": {"type": "boolean"},
+            "reuse-period": {"type": "integer", "minimum": 60, "maximum": 86400},
+            "key": {"type": "string"},
+        },
     )
 
-    permissions = ('sqs:SetQueueAttributes',)
-    uuid_regex = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+    permissions = ("sqs:SetQueueAttributes",)
+    uuid_regex = re.compile(
+        "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    )
 
     def process(self, queues):
         # compatibility, if key is given and not arn/key id/ or prefixed with
         # alias, add alias to it.
-        key = self.data.get('key', None)
-        if (key
-            and not key.startswith('alias')
-            and not key.startswith('arn:')
-                and not self.uuid_regex.search(key)):
+        key = self.data.get("key", None)
+        if (
+            key
+            and not key.startswith("alias")
+            and not key.startswith("arn:")
+            and not self.uuid_regex.search(key)
+        ):
             key = "alias/" + key
 
         client = self.manager.get_client()
 
-        reuse_period = self.data.get('reuse-period', 300)
+        reuse_period = self.data.get("reuse-period", 300)
         params = {}
-        if not self.data.get('enabled', True):
-            params['SqsManagedSseEnabled'] = 'false'
-            params['KmsMasterKeyId'] = ''
-        elif self.data.get('enable', True) and not key:
-            params['SqsManagedSseEnabled'] = 'true'
-            params['KmsMasterKeyId'] = ''
-        elif self.data.get('enable', True) and key:
-            params['SqsManagedSseEnabled'] = 'false'
-            params['KmsMasterKeyId'] = key
-            params['KmsDataKeyReusePeriodSeconds'] = str(reuse_period)
+        if not self.data.get("enabled", True):
+            params["SqsManagedSseEnabled"] = "false"
+            params["KmsMasterKeyId"] = ""
+        elif self.data.get("enable", True) and not key:
+            params["SqsManagedSseEnabled"] = "true"
+            params["KmsMasterKeyId"] = ""
+        elif self.data.get("enable", True) and key:
+            params["SqsManagedSseEnabled"] = "false"
+            params["KmsMasterKeyId"] = key
+            params["KmsDataKeyReusePeriodSeconds"] = str(reuse_period)
 
         for q in queues:
             self.process_queue(client, q, params)
 
     def process_queue(self, client, queue, params):
         try:
-            client.set_queue_attributes(
-                QueueUrl=queue['QueueUrl'],
-                Attributes=params
-            )
-        except (client.exceptions.QueueDoesNotExist,) as e:
-            self.log.exception(
-                "Exception modifying queue:\n %s" % e)
+            client.set_queue_attributes(QueueUrl=queue["QueueUrl"], Attributes=params)
+        except client.exceptions.QueueDoesNotExist:
+            self.log.exception("Exception modifying queue")
 
 
-@SQS.action_registry.register('set-retention-period')
+@SQS.action_registry.register("set-retention-period")
 class SetRetentionPeriod(BaseAction):
     """Action to set the retention period on an SQS queue (in seconds)
 
@@ -425,22 +426,23 @@ class SetRetentionPeriod(BaseAction):
               - type: set-retention-period
                 period: 86400
     """
+
     schema = type_schema(
-        'set-retention-period',
-        period={'type': 'integer', 'minimum': 60, 'maximum': 1209600})
-    permissions = ('sqs:SetQueueAttributes',)
+        "set-retention-period",
+        period={"type": "integer", "minimum": 60, "maximum": 1209600},
+    )
+    permissions = ("sqs:SetQueueAttributes",)
 
     def process(self, queues):
         client = self.manager.get_client()
-        period = str(self.data.get('period', 345600))
+        period = str(self.data.get("period", 345600))
         for q in queues:
             client.set_queue_attributes(
-                QueueUrl=q['QueueUrl'],
-                Attributes={
-                    'MessageRetentionPeriod': period})
+                QueueUrl=q["QueueUrl"], Attributes={"MessageRetentionPeriod": period}
+            )
 
 
-@SQS.filter_registry.register('dead-letter')
+@SQS.filter_registry.register("dead-letter")
 class DeadLetterFilter(Filter):
     """
     Filter for sqs queues that are dead letter queues
@@ -456,27 +458,27 @@ class DeadLetterFilter(Filter):
              - type: dead-letter
     """
 
-    schema = type_schema('dead-letter')
+    schema = type_schema("dead-letter")
     permissions = ()
 
     def process(self, resources, event=None):
         # we need to inspect all the queues regardless of any filters that
         # may have been applied earlier
         all_resources = self.manager.get_resource_manager("sqs").resources()
-        all_queue_arn_map = {r['QueueArn']: r for r in all_resources}
-        queue_arn_map = {r['QueueArn']: r for r in resources}
+        all_queue_arn_map = {r["QueueArn"]: r for r in all_resources}
+        queue_arn_map = {r["QueueArn"]: r for r in resources}
         has_redrive = []
         for r in all_resources:
             if r.get("RedrivePolicy"):
-                has_redrive.append(r['QueueArn'])
+                has_redrive.append(r["QueueArn"])
         result = []
         # dead letter queues must exist in the same region and account as the
         # original queue so it should be safe to look for them in our existing
         # resources
         for r in all_resources:
-            if r['QueueArn'] in has_redrive:
-                queue = all_queue_arn_map[r['QueueArn']]
-                target = json.loads(queue['RedrivePolicy']).get('deadLetterTargetArn')
+            if r["QueueArn"] in has_redrive:
+                queue = all_queue_arn_map[r["QueueArn"]]
+                target = json.loads(queue["RedrivePolicy"]).get("deadLetterTargetArn")
                 if queue_arn_map.get(target):
                     result.append(target)
         # in case there are multiple queues pointing at the same dead letter queue

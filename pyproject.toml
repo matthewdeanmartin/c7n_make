@@ -31,3 +31,6 @@ exclude = ["policies*", "test_*"]
 [tool.uv.pip]
 universal = true
 
+
+[tool.ruff.lint]
+ignore = ["RUF100", "BLE001", "RUF012", "RUF015"]  # unused noqa differs across Python versions
